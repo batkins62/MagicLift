@@ -1,0 +1,6 @@
+name: MagicLift
+version: 1.0.1
+main: me.stealth62.MagicLift.MagicLift
+author: stealth62
+description: Works like a real life elevator, get in, press the button, then slowly drift up or down.
+load: POSTWORLD

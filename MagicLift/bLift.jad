@@ -1,0 +1,64 @@
+// Decompiled by DJ v3.12.12.96 Copyright 2011 Atanas Neshkov  Date: 3/9/2012 11:11:53 PM
+// Home Page: http://members.fortunecity.com/neshkov/dj.html http://www.neshkov.com/dj.html - Check often for new version!
+// Decompiler options: packimports(3) 
+// Source File Name:   bLift.java
+
+package com.bradsproject.BradleyJewell.bLift;
+
+import java.io.PrintStream;
+import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+
+// Referenced classes of package com.bradsproject.BradleyJewell.bLift:
+//            bLiftRedstoneListener, bLiftPlayerListener
+
+public class bLift extends JavaPlugin
+{
+
+    public bLift()
+    {
+    }
+
+    public void onEnable()
+    {
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvent(org.bukkit.event.Event.Type.REDSTONE_CHANGE, redstoneListener, org.bukkit.event.Event.Priority.Low, this);
+        pm.registerEvent(org.bukkit.event.Event.Type.PLAYER_INTERACT, playerListener, org.bukkit.event.Event.Priority.Low, this);
+        PluginDescriptionFile pdfFile = getDescription();
+        System.out.println((new StringBuilder(String.valueOf(pdfFile.getName()))).append(" version ").append(pdfFile.getVersion()).append(" is enabled!").toString());
+    }
+
+    public void onDisable()
+    {
+        System.out.println("bLift has been disabled!");
+    }
+
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])
+    {
+        Player player;
+        if(!(sender instanceof Player))
+            return false;
+        player = (Player)sender;
+        String commandName = cmd.getName().toLowerCase();
+        if(!commandName.equals("bswarm"))
+            break MISSING_BLOCK_LABEL_60;
+        if(args.length > 0)
+            return true;
+        player.sendMessage("Sending your swarm...");
+        return true;
+        Exception e;
+        e;
+        e.printStackTrace();
+        return false;
+    }
+
+    Server server;
+    private final bLiftRedstoneListener redstoneListener = new bLiftRedstoneListener(this);
+    private final bLiftPlayerListener playerListener = new bLiftPlayerListener(this);
+}

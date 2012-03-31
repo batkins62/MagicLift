@@ -1,0 +1,32 @@
+// Decompiled by DJ v3.12.12.96 Copyright 2011 Atanas Neshkov  Date: 3/9/2012 11:11:53 PM
+// Home Page: http://members.fortunecity.com/neshkov/dj.html http://www.neshkov.com/dj.html - Check often for new version!
+// Decompiler options: packimports(3) 
+// Source File Name:   bLiftRedstoneListener.java
+
+package com.bradsproject.BradleyJewell.bLift;
+
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.block.BlockRedstoneEvent;
+
+// Referenced classes of package com.bradsproject.BradleyJewell.bLift:
+//            Elevator, bLift
+
+public class bLiftRedstoneListener extends BlockListener
+{
+
+    public bLiftRedstoneListener(bLift instance)
+    {
+        plugin = instance;
+    }
+
+    public void onBlockRedstoneChange(BlockRedstoneEvent event)
+    {
+        Block block = event.getBlock();
+        if(block.getType() == Material.STONE_BUTTON && !block.isBlockIndirectlyPowered())
+            new Elevator(plugin, block);
+    }
+
+    private final bLift plugin;
+}

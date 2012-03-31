@@ -1,0 +1,232 @@
+// Decompiled by DJ v3.12.12.96 Copyright 2011 Atanas Neshkov  Date: 3/9/2012 11:11:53 PM
+// Home Page: http://members.fortunecity.com/neshkov/dj.html http://www.neshkov.com/dj.html - Check often for new version!
+// Decompiler options: packimports(3) 
+// Source File Name:   Elevator.java
+
+package com.bradsproject.BradleyJewell.bLift;
+
+import java.io.PrintStream;
+import java.util.Iterator;
+import java.util.List;
+import org.bukkit.*;
+import org.bukkit.block.*;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.Vector;
+
+// Referenced classes of package com.bradsproject.BradleyJewell.bLift:
+//            MultiElevator, bLift
+
+public class Elevator
+    implements Runnable
+{
+
+    public Elevator(bLift instance, Block block)
+    {
+        isUp = Boolean.valueOf(false);
+        isDown = Boolean.valueOf(false);
+        isMulti = Boolean.valueOf(false);
+        plugin = instance;
+        button = block;
+        isUp = Boolean.valueOf(isUpElevator());
+        isDown = Boolean.valueOf(isDownElevator());
+        if(isUp.booleanValue())
+            prepareUpElevator();
+        else
+        if(isDown.booleanValue())
+            prepareDownElevator();
+        else
+            new MultiElevator(plugin, block, true);
+    }
+
+    public void say(String msg)
+    {
+        System.out.println(msg);
+    }
+
+    public void prepareUpElevator()
+    {
+        for(Iterator iterator = button.getWorld().getPlayers().iterator(); iterator.hasNext();)
+        {
+            Player p = (Player)iterator.next();
+            if(isInUpElevator(p))
+            {
+                player = p;
+                bottomGlass.setType(Material.AIR);
+                topGlass.setType(Material.AIR);
+                Location loc = bottom.getLocation();
+                double x = loc.getX() + 0.5D;
+                double y = loc.getY() + 1.5D;
+                double z = loc.getZ() + 0.5D;
+                float yaw = player.getLocation().getYaw();
+                float pitch = player.getLocation().getPitch();
+                player.teleport(new Location(player.getWorld(), x, y, z, yaw, pitch));
+                player.setVelocity(new Vector(0, 0, 0));
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
+                return;
+            }
+        }
+
+    }
+
+    public void prepareDownElevator()
+    {
+        for(Iterator iterator = button.getWorld().getPlayers().iterator(); iterator.hasNext();)
+        {
+            Player p = (Player)iterator.next();
+            if(isInDownElevator(p))
+            {
+                player = p;
+                bottomGlass.setType(Material.AIR);
+                topGlass.setType(Material.AIR);
+                Location loc = topGlass.getLocation();
+                double x = loc.getX() + 0.5D;
+                double y = loc.getY() + 1.5D;
+                double z = loc.getZ() + 0.5D;
+                float yaw = player.getLocation().getYaw();
+                float pitch = player.getLocation().getPitch();
+                player.teleport(new Location(player.getWorld(), x, y, z, yaw, pitch));
+                player.setVelocity(new Vector(0, 0, 0));
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
+                return;
+            }
+        }
+
+    }
+
+    public boolean isInUpElevator(Player p)
+    {
+        Location inside = new Location(bottom.getWorld(), bottom.getX(), bottom.getY() + 1, bottom.getZ());
+        Location loc = p.getLocation();
+        return loc.getX() < inside.getX() + 1.0D && loc.getX() > inside.getX() - 1.0D && loc.getY() < inside.getY() + 1.0D && loc.getY() > inside.getY() - 1.0D && loc.getZ() < inside.getZ() + 1.0D && loc.getZ() > inside.getZ() - 1.0D;
+    }
+
+    public boolean isInDownElevator(Player p)
+    {
+        Location inside = new Location(topGlass.getWorld(), topGlass.getX(), topGlass.getY() + 1, topGlass.getZ());
+        Location loc = p.getLocation();
+        return loc.getX() < inside.getX() + 1.0D && loc.getX() > inside.getX() - 1.0D && loc.getY() < inside.getY() + 1.0D && loc.getY() > inside.getY() - 1.0D && loc.getZ() < inside.getZ() + 1.0D && loc.getZ() > inside.getZ() - 1.0D;
+    }
+
+    public boolean isUpElevator()
+    {
+        Material mat = button.getType();
+        if(mat == Material.STONE_BUTTON && button.getFace(BlockFace.UP).getType() == Material.AIR && button.getFace(BlockFace.UP).getFace(BlockFace.UP).getType() == Material.GLASS && button.getFace(BlockFace.DOWN).getType() == Material.AIR && button.getFace(BlockFace.DOWN).getFace(BlockFace.DOWN).getType() == Material.IRON_BLOCK)
+        {
+            bottomGlass = button.getFace(BlockFace.UP).getFace(BlockFace.UP);
+            bottom = button.getFace(BlockFace.DOWN).getFace(BlockFace.DOWN);
+            for(int i = bottom.getY() + 2; i < 130; i++)
+            {
+                Block t = button.getWorld().getBlockAt(button.getX(), i, button.getZ());
+                if(t.getType() == Material.IRON_BLOCK)
+                {
+                    top = t;
+                    topGlass = top.getFace(BlockFace.DOWN).getFace(BlockFace.DOWN).getFace(BlockFace.DOWN).getFace(BlockFace.DOWN);
+                    if(topGlass.getType() != Material.GLASS)
+                        return false;
+                    break;
+                }
+                if(i > 128)
+                    return false;
+            }
+
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    public boolean isDownElevator()
+    {
+        Material mat = button.getType();
+        if(mat == Material.STONE_BUTTON && button.getFace(BlockFace.UP).getType() == Material.AIR && button.getFace(BlockFace.UP).getFace(BlockFace.UP).getType() == Material.IRON_BLOCK && button.getFace(BlockFace.DOWN).getType() == Material.AIR && button.getFace(BlockFace.DOWN).getFace(BlockFace.DOWN).getType() == Material.GLASS)
+        {
+            topGlass = button.getFace(BlockFace.DOWN).getFace(BlockFace.DOWN);
+            top = button.getFace(BlockFace.UP).getFace(BlockFace.UP);
+            for(int i = top.getY() - 2; i > -2; i--)
+            {
+                Block t = button.getWorld().getBlockAt(button.getX(), i, button.getZ());
+                if(t.getType() == Material.IRON_BLOCK)
+                {
+                    bottom = t;
+                    bottomGlass = bottom.getFace(BlockFace.UP).getFace(BlockFace.UP).getFace(BlockFace.UP).getFace(BlockFace.UP);
+                    if(bottomGlass.getType() != Material.GLASS)
+                        return false;
+                    break;
+                }
+                if(i < 0)
+                    return false;
+            }
+
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    public void run()
+    {
+        if(!player.isOnline())
+        {
+            topGlass.setType(Material.GLASS);
+            bottomGlass.setType(Material.GLASS);
+            return;
+        }
+        if(isUp.booleanValue())
+        {
+            if(player.getLocation().getY() < topGlass.getLocation().getY() + 1.0D)
+            {
+                player.setVelocity(new Vector(0.0D, 0.5D, 0.0D));
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
+            } else
+            {
+                Location loc = topGlass.getLocation();
+                double x = loc.getX() + 0.5D;
+                double y = loc.getY() + 1.5D;
+                double z = loc.getZ() + 0.5D;
+                float yaw = player.getLocation().getYaw();
+                float pitch = player.getLocation().getPitch();
+                player.sendMessage("Ding! Top floor.");
+                player.setVelocity(new Vector(0, 0, 0));
+                player.teleport(new Location(player.getWorld(), x, y, z, yaw, pitch));
+                player.setFallDistance(0.0F);
+                topGlass.setType(Material.GLASS);
+                bottomGlass.setType(Material.GLASS);
+            }
+        } else
+        if(isDown.booleanValue())
+            if(player.getLocation().getY() > bottomGlass.getLocation().getY() + 1.0D)
+            {
+                player.setVelocity(new Vector(0.0D, -0.5D, 0.0D));
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, this, 1L);
+            } else
+            {
+                Location loc = bottomGlass.getLocation();
+                double x = loc.getX() + 0.5D;
+                double y = loc.getY() - 1.5D;
+                double z = loc.getZ() + 0.5D;
+                float yaw = player.getLocation().getYaw();
+                float pitch = player.getLocation().getPitch();
+                player.sendMessage("Ding! Bottom floor.");
+                player.setVelocity(new Vector(0, 0, 0));
+                player.teleport(new Location(player.getWorld(), x, y, z, yaw, pitch));
+                player.setFallDistance(0.0F);
+                topGlass.setType(Material.GLASS);
+                bottomGlass.setType(Material.GLASS);
+            }
+    }
+
+    private final bLift plugin;
+    Block button;
+    Block top;
+    Block bottom;
+    Block topGlass;
+    Block bottomGlass;
+    Player player;
+    Boolean isUp;
+    Boolean isDown;
+    Boolean isMulti;
+    Sign sign;
+}
